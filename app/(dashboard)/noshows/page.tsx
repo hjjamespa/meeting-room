@@ -174,7 +174,7 @@ export default function NoshowsPage() {
             </thead>
             <tbody className="divide-y divide-gray-100">
               {loading ? (
-                <tr><td colSpan={7} className="px-6 py-10 text-center"><RefreshCw className="w-6 h-6 text-blue-500 animate-spin mx-auto" /></td></tr>
+                <tr><td colSpan={7} className="px-6 py-10 text-center"><RefreshCw className="w-6 h-6 text-blue-500 animate-spin mx-auto" /><p className="mt-2 text-sm text-gray-500">No-show 이력을 불러오는 중...</p></td></tr>
               ) : noshows.length === 0 ? (
                 <tr><td colSpan={7} className="px-6 py-10 text-center text-gray-400">
                   <UserX className="w-8 h-8 text-gray-300 mx-auto mb-2" />

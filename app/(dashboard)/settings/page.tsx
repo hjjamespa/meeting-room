@@ -171,8 +171,9 @@ export default function SettingsPage() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-20">
+      <div className="flex flex-col items-center justify-center py-20">
         <RefreshCw className="w-8 h-8 text-blue-500 animate-spin" />
+        <p className="mt-3 text-sm text-gray-500">설정을 불러오는 중...</p>
       </div>
     )
   }

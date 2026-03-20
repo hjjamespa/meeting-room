@@ -217,7 +217,7 @@ export default function RoomsPage() {
             </thead>
             <tbody className="divide-y divide-gray-100">
               {loading ? (
-                <tr><td colSpan={7} className="px-6 py-10 text-center"><RefreshCw className="w-6 h-6 text-blue-500 animate-spin mx-auto" /></td></tr>
+                <tr><td colSpan={7} className="px-6 py-10 text-center"><RefreshCw className="w-6 h-6 text-blue-500 animate-spin mx-auto" /><p className="mt-2 text-sm text-gray-500">회의실 목록을 불러오는 중...</p></td></tr>
               ) : filteredRooms.length === 0 ? (
                 <tr><td colSpan={7} className="px-6 py-10 text-center text-gray-400">등록된 회의실이 없습니다.</td></tr>
               ) : (

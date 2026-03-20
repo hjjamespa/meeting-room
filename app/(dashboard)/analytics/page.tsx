@@ -146,8 +146,9 @@ export default function AnalyticsPage() {
       </div>
 
       {loading ? (
-        <div className="flex items-center justify-center py-20">
+        <div className="flex flex-col items-center justify-center py-20">
           <RefreshCw className="w-8 h-8 text-blue-500 animate-spin" />
+          <p className="mt-3 text-sm text-gray-500">이용률 데이터를 분석하는 중...</p>
         </div>
       ) : (
         <>

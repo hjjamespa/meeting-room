@@ -28,10 +28,11 @@ const menuItems = [
   { href: '/bookings', label: '예약 현황', icon: Calendar },
   { href: '/noshows', label: 'No-show 이력', icon: UserX },
   { href: '/analytics', label: '이용률 분석', icon: BarChart3 },
-  { href: '/settings', label: '설정', icon: Settings },
+  { href: '/account', label: '내 계정', icon: User },
 ]
 
 const adminOnlyItems = [
+  { href: '/settings', label: '설정', icon: Settings },
   { href: '/users', label: '사용자 관리', icon: Users },
   { href: '/security-logs', label: '보안 로그', icon: ShieldAlert },
 ]

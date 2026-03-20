@@ -129,7 +129,7 @@ export default function BookingsPage() {
             </thead>
             <tbody className="divide-y divide-gray-100">
               {loading ? (
-                <tr><td colSpan={7} className="px-6 py-10 text-center"><RefreshCw className="w-6 h-6 text-blue-500 animate-spin mx-auto" /></td></tr>
+                <tr><td colSpan={7} className="px-6 py-10 text-center"><RefreshCw className="w-6 h-6 text-blue-500 animate-spin mx-auto" /><p className="mt-2 text-sm text-gray-500">예약 정보를 불러오는 중...</p></td></tr>
               ) : bookings.length === 0 ? (
                 <tr><td colSpan={7} className="px-6 py-10 text-center text-gray-400">
                   <Calendar className="w-8 h-8 text-gray-300 mx-auto mb-2" />

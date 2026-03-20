@@ -178,8 +178,9 @@ export default function DashboardPage() {
 
       {/* Room Grid */}
       {loading && !data ? (
-        <div className="flex items-center justify-center py-20">
+        <div className="flex flex-col items-center justify-center py-20">
           <RefreshCw className="w-8 h-8 text-blue-500 animate-spin" />
+          <p className="mt-3 text-sm text-gray-500">회의실 현황을 불러오는 중...</p>
         </div>
       ) : filteredRooms.length === 0 ? (
         <div className="text-center py-20">

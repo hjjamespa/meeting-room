@@ -133,7 +133,7 @@ export default function SensorsPage() {
             </thead>
             <tbody className="divide-y divide-gray-100">
               {loading ? (
-                <tr><td colSpan={6} className="px-6 py-10 text-center"><RefreshCw className="w-6 h-6 text-blue-500 animate-spin mx-auto" /></td></tr>
+                <tr><td colSpan={6} className="px-6 py-10 text-center"><RefreshCw className="w-6 h-6 text-blue-500 animate-spin mx-auto" /><p className="mt-2 text-sm text-gray-500">센서 상태를 확인하는 중...</p></td></tr>
               ) : sensors.length === 0 ? (
                 <tr><td colSpan={6} className="px-6 py-10 text-center text-gray-400">연결된 센서가 없습니다.</td></tr>
               ) : (

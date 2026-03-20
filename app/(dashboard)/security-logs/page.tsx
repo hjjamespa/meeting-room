@@ -91,7 +91,7 @@ export default function SecurityLogsPage() {
             </thead>
             <tbody className="divide-y divide-gray-100">
               {loading ? (
-                <tr><td colSpan={5} className="px-6 py-10 text-center"><RefreshCw className="w-6 h-6 text-blue-500 animate-spin mx-auto" /></td></tr>
+                <tr><td colSpan={5} className="px-6 py-10 text-center"><RefreshCw className="w-6 h-6 text-blue-500 animate-spin mx-auto" /><p className="mt-2 text-sm text-gray-500">보안 로그를 불러오는 중...</p></td></tr>
               ) : logs.length === 0 ? (
                 <tr><td colSpan={5} className="px-6 py-10 text-center text-gray-400">보안 로그가 없습니다.</td></tr>
               ) : (
