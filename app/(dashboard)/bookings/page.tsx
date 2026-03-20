@@ -36,8 +36,14 @@ export default function BookingsPage() {
         fetch(`/api/bookings?${qs}`),
         fetch('/api/rooms'),
       ])
-      if (bookingsRes.ok) setBookings(await bookingsRes.json())
-      if (roomsRes.ok) setRooms(await roomsRes.json())
+      if (bookingsRes.ok) {
+        const json = await bookingsRes.json()
+        setBookings(Array.isArray(json) ? json : json.data || [])
+      }
+      if (roomsRes.ok) {
+        const json = await roomsRes.json()
+        setRooms(Array.isArray(json) ? json : json.data || [])
+      }
     } catch (err) {
       console.error(err)
     }

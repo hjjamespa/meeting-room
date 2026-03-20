@@ -28,7 +28,43 @@ export default function DashboardPage() {
     try {
       const res = await fetch('/api/occupancy/latest')
       if (res.ok) {
-        setData(await res.json())
+        const json = await res.json()
+        // API may return a plain array or the expected OccupancyData object
+        if (Array.isArray(json)) {
+          // Convert flat array of room occupancy records into OccupancyData shape
+          const rooms: Room[] = json.map((r: Record<string, unknown>) => ({
+            id: r.room_id as string,
+            name: r.room_name as string,
+            floor: r.floor as string,
+            building: r.building as string,
+            capacity: r.capacity as number,
+          })) as Room[]
+          const occupancy: Record<string, OccupancyEvent> = {}
+          json.forEach((r: Record<string, unknown>) => {
+            occupancy[r.room_id as string] = {
+              id: r.room_id as string,
+              room_id: r.room_id as string,
+              is_occupied: r.is_occupied as boolean,
+              person_count: r.person_count as number | null,
+              detected_at: r.last_detected_at as string,
+            } as OccupancyEvent
+          })
+          const occupied = json.filter((r: Record<string, unknown>) => r.is_occupied).length
+          setData({
+            rooms,
+            occupancy,
+            currentBookings: {},
+            nextBookings: {},
+            stats: {
+              total: json.length,
+              occupied,
+              available: json.length - occupied,
+              noshowsToday: 0,
+            },
+          })
+        } else {
+          setData(json)
+        }
       }
     } catch (err) {
       console.error('Failed to load occupancy data:', err)

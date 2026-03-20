@@ -47,11 +47,17 @@ export default function RoomDetailPage() {
         fetch(`/api/analytics/utilization?room_id=${roomId}&start_date=${getWeekAgo()}&end_date=${getToday()}`),
       ])
 
-      const room = roomRes.ok ? await roomRes.json() : null
-      const occData = occRes.ok ? await occRes.json() : []
-      const bookings = bookingsRes.ok ? await bookingsRes.json() : []
-      const noshows = noshowsRes.ok ? await noshowsRes.json() : []
-      const stats = statsRes.ok ? await statsRes.json() : []
+      const roomJson = roomRes.ok ? await roomRes.json() : null
+      const occJson = occRes.ok ? await occRes.json() : []
+      const bookingsJson = bookingsRes.ok ? await bookingsRes.json() : []
+      const noshowsJson = noshowsRes.ok ? await noshowsRes.json() : []
+      const statsJson = statsRes.ok ? await statsRes.json() : []
+
+      const room = roomJson
+      const occData = Array.isArray(occJson) ? occJson : occJson.data || []
+      const bookings = Array.isArray(bookingsJson) ? bookingsJson : bookingsJson.data || []
+      const noshows = Array.isArray(noshowsJson) ? noshowsJson : noshowsJson.data || []
+      const stats = Array.isArray(statsJson) ? statsJson : statsJson.data || []
 
       setData({
         room: Array.isArray(room) ? room[0] : room,

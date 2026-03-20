@@ -49,8 +49,14 @@ export default function AnalyticsPage() {
         fetch(`/api/analytics/utilization?start_date=${start_date}&end_date=${end_date}`),
         fetch('/api/rooms'),
       ])
-      if (statsRes.ok) setStats(await statsRes.json())
-      if (roomsRes.ok) setRooms(await roomsRes.json())
+      if (statsRes.ok) {
+        const json = await statsRes.json()
+        setStats(Array.isArray(json) ? json : json.data || [])
+      }
+      if (roomsRes.ok) {
+        const json = await roomsRes.json()
+        setRooms(Array.isArray(json) ? json : json.data || [])
+      }
     } catch (err) {
       console.error(err)
     }

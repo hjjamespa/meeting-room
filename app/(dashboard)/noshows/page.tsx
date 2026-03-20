@@ -32,8 +32,14 @@ export default function NoshowsPage() {
         fetch(`/api/noshows?${qs}`),
         fetch('/api/rooms'),
       ])
-      if (noshowRes.ok) setNoshows(await noshowRes.json())
-      if (roomsRes.ok) setRooms(await roomsRes.json())
+      if (noshowRes.ok) {
+        const json = await noshowRes.json()
+        setNoshows(Array.isArray(json) ? json : json.data || [])
+      }
+      if (roomsRes.ok) {
+        const json = await roomsRes.json()
+        setRooms(Array.isArray(json) ? json : json.data || [])
+      }
     } catch (err) {
       console.error(err)
     }
