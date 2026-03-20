@@ -15,6 +15,9 @@ import {
   Clock,
   Copy,
   RotateCw,
+  Lock,
+  Plus,
+  Trash2,
 } from 'lucide-react'
 
 interface SettingValue {
@@ -58,6 +61,14 @@ export default function SettingsPage() {
   const [webhookSecret, setWebhookSecret] = useState('')
   const [webhookCopied, setWebhookCopied] = useState(false)
 
+  // IP Restriction
+  const [ipRestrictionEnabled, setIpRestrictionEnabled] = useState(false)
+  const [ipList, setIpList] = useState<{ id: string; ip_address: string; description: string | null; created_at: string }[]>([])
+  const [newIp, setNewIp] = useState('')
+  const [newIpDesc, setNewIpDesc] = useState('')
+  const [ipLoading, setIpLoading] = useState(false)
+  const [ipSaving, setIpSaving] = useState(false)
+
   const isAdmin = user?.role === 'admin'
 
   const loadSettings = useCallback(async () => {
@@ -86,9 +97,25 @@ export default function SettingsPage() {
     setLoading(false)
   }, [])
 
+  const loadIpRestriction = useCallback(async () => {
+    setIpLoading(true)
+    try {
+      const res = await fetch('/api/ip-restriction')
+      if (res.ok) {
+        const data = await res.json()
+        setIpRestrictionEnabled(data.enabled)
+        setIpList(data.ips || [])
+      }
+    } catch (err) {
+      console.error(err)
+    }
+    setIpLoading(false)
+  }, [])
+
   useEffect(() => {
     void loadSettings()
-  }, [loadSettings])
+    void loadIpRestriction()
+  }, [loadSettings, loadIpRestriction])
 
   const saveSetting = async (key: string, value: string) => {
     await fetch('/api/settings', {
@@ -159,6 +186,51 @@ export default function SettingsPage() {
     navigator.clipboard.writeText(webhookSecret)
     setWebhookCopied(true)
     setTimeout(() => setWebhookCopied(false), 2000)
+  }
+
+  const handleToggleIpRestriction = async () => {
+    const newVal = !ipRestrictionEnabled
+    try {
+      await fetch('/api/ip-restriction', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ enabled: newVal }),
+      })
+      setIpRestrictionEnabled(newVal)
+    } catch (err) { console.error(err) }
+  }
+
+  const handleAddIp = async () => {
+    if (!newIp.trim()) return
+    setIpSaving(true)
+    try {
+      const res = await fetch('/api/ip-restriction', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ ip_address: newIp.trim(), description: newIpDesc.trim() || null }),
+      })
+      if (res.ok) {
+        setNewIp('')
+        setNewIpDesc('')
+        void loadIpRestriction()
+      } else {
+        const data = await res.json()
+        alert(data.error || 'IP 등록 실패')
+      }
+    } catch (err) { console.error(err) }
+    setIpSaving(false)
+  }
+
+  const handleDeleteIp = async (id: string) => {
+    if (!confirm('이 IP를 삭제하시겠습니까?')) return
+    try {
+      await fetch('/api/ip-restriction', {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ id }),
+      })
+      void loadIpRestriction()
+    } catch (err) { console.error(err) }
   }
 
   const toggleSecret = (key: string) => {
@@ -327,6 +399,74 @@ export default function SettingsPage() {
               <RotateCw className="w-4 h-4" />
               새로 생성
             </button>
+          </div>
+        </div>
+        {/* IP Restriction */}
+        <div className="bg-white rounded-xl border border-gray-200 p-6">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
+            <Lock className="w-5 h-5 text-orange-500" />
+            IP 접근제한
+          </h2>
+          <div className="space-y-4">
+            <div className="flex items-center gap-3">
+              <label className="text-sm font-medium text-gray-700">IP 접근제한</label>
+              <button
+                type="button"
+                onClick={handleToggleIpRestriction}
+                className={`relative w-10 h-5 rounded-full transition ${ipRestrictionEnabled ? 'bg-blue-600' : 'bg-gray-300'}`}
+              >
+                <span className={`absolute top-0.5 w-4 h-4 bg-white rounded-full transition-transform ${ipRestrictionEnabled ? 'translate-x-5' : 'translate-x-0.5'}`} />
+              </button>
+              <span className="text-sm text-gray-500">{ipRestrictionEnabled ? '활성' : '비활성'}</span>
+            </div>
+            <p className="text-xs text-gray-400">활성화하면 등록된 IP 주소에서만 접속할 수 있습니다. 로그인 페이지는 제외됩니다.</p>
+
+            {/* Add IP */}
+            <div className="flex gap-2">
+              <input
+                type="text"
+                placeholder="IP 주소 (예: 192.168.0.1)"
+                value={newIp}
+                onChange={(e) => setNewIp(e.target.value)}
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
+              />
+              <input
+                type="text"
+                placeholder="설명 (선택)"
+                value={newIpDesc}
+                onChange={(e) => setNewIpDesc(e.target.value)}
+                className="flex-1 px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-blue-500"
+              />
+              <button
+                onClick={handleAddIp}
+                disabled={ipSaving || !newIp.trim()}
+                className="flex items-center gap-1 px-3 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+              >
+                <Plus className="w-4 h-4" />
+                추가
+              </button>
+            </div>
+
+            {/* IP list */}
+            {ipLoading ? (
+              <p className="text-sm text-gray-400">로딩 중...</p>
+            ) : ipList.length === 0 ? (
+              <p className="text-sm text-gray-400">등록된 IP가 없습니다.</p>
+            ) : (
+              <div className="border border-gray-200 rounded-lg divide-y divide-gray-100">
+                {ipList.map((ip) => (
+                  <div key={ip.id} className="flex items-center justify-between px-4 py-2">
+                    <div>
+                      <span className="text-sm font-mono text-gray-900">{ip.ip_address}</span>
+                      {ip.description && <span className="text-xs text-gray-400 ml-2">({ip.description})</span>}
+                    </div>
+                    <button onClick={() => handleDeleteIp(ip.id)} className="p-1 text-gray-400 hover:text-red-500">
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
           </div>
         </div>
       </div>

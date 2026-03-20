@@ -13,8 +13,20 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 })
   }
 
+  // Request body size limit (1MB)
+  const contentLength = request.headers.get('content-length')
+  if (contentLength && parseInt(contentLength, 10) > 1_048_576) {
+    return NextResponse.json({ error: 'Request body too large' }, { status: 413 })
+  }
+
   const adminClient = createAdminClient()
-  const body = await request.json()
+
+  let body: Record<string, unknown>
+  try {
+    body = await request.json()
+  } catch {
+    return NextResponse.json({ error: 'Invalid JSON body' }, { status: 400 })
+  }
 
   // Determine adapter type from query param or header
   const { searchParams } = new URL(request.url)

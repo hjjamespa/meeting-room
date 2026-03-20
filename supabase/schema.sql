@@ -34,15 +34,18 @@ CREATE TABLE IF NOT EXISTS system_settings (
 -- =============================================================
 CREATE TABLE IF NOT EXISTS security_logs (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+  event_type TEXT NOT NULL,
   user_id UUID REFERENCES auth.users(id) ON DELETE SET NULL,
-  action TEXT NOT NULL,
+  user_email TEXT,
   ip_address TEXT,
   user_agent TEXT,
   details JSONB DEFAULT '{}',
+  severity TEXT DEFAULT 'info' CHECK (severity IN ('info', 'warning', 'critical')),
   created_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
 CREATE INDEX idx_security_logs_user_id ON security_logs(user_id);
-CREATE INDEX idx_security_logs_action ON security_logs(action);
+CREATE INDEX idx_security_logs_event_type ON security_logs(event_type);
+CREATE INDEX idx_security_logs_severity ON security_logs(severity);
 CREATE INDEX idx_security_logs_created_at ON security_logs(created_at DESC);
 
 -- =============================================================
@@ -50,13 +53,14 @@ CREATE INDEX idx_security_logs_created_at ON security_logs(created_at DESC);
 -- =============================================================
 CREATE TABLE IF NOT EXISTS account_lockouts (
   id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
-  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  locked_at TIMESTAMPTZ NOT NULL DEFAULT now(),
-  unlocked_at TIMESTAMPTZ,
-  reason TEXT,
-  failed_attempts INTEGER DEFAULT 0
+  user_email TEXT NOT NULL UNIQUE,
+  failed_attempts INTEGER DEFAULT 0,
+  locked_until TIMESTAMPTZ NOT NULL DEFAULT now(),
+  last_failed_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+  updated_at TIMESTAMPTZ NOT NULL DEFAULT now()
 );
-CREATE INDEX idx_account_lockouts_user_id ON account_lockouts(user_id);
+CREATE INDEX idx_account_lockouts_user_email ON account_lockouts(user_email);
 
 -- =============================================================
 -- 5. mfa_settings

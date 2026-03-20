@@ -62,6 +62,14 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: '프로필 생성에 실패했습니다.' }, { status: 500 })
     }
 
+    await adminClient.from('audit_log').insert({
+      action: 'user_created',
+      entity_type: 'user',
+      entity_id: authData.user.id,
+      actor: auth.data.user.email || 'admin',
+      details: { email: body.email, name: sanitizeInput(body.name), role },
+    })
+
     return NextResponse.json({ success: true, userId: authData.user.id }, { status: 201 })
   }
 
@@ -79,6 +87,15 @@ export async function POST(request: NextRequest) {
       console.error('Users update_role error:', error)
       return NextResponse.json({ error: '역할 변경에 실패했습니다.' }, { status: 500 })
     }
+
+    await adminClient.from('audit_log').insert({
+      action: 'user_role_changed',
+      entity_type: 'user',
+      entity_id: body.userId,
+      actor: auth.data.user.email || 'admin',
+      details: { new_role: role },
+    })
+
     return NextResponse.json({ success: true })
   }
 
@@ -95,6 +112,14 @@ export async function POST(request: NextRequest) {
       console.error('Users reset_password error:', error)
       return NextResponse.json({ error: '비밀번호 변경에 실패했습니다.' }, { status: 500 })
     }
+
+    await adminClient.from('audit_log').insert({
+      action: 'user_password_reset',
+      entity_type: 'user',
+      entity_id: body.userId,
+      actor: auth.data.user.email || 'admin',
+    })
+
     return NextResponse.json({ success: true })
   }
 
@@ -106,12 +131,24 @@ export async function POST(request: NextRequest) {
     if (body.userId === auth.data.user.id) {
       return NextResponse.json({ error: '자신의 계정은 삭제할 수 없습니다.' }, { status: 400 })
     }
+    // Get user info before deleting for audit log
+    const { data: deletedProfile } = await adminClient.from('profiles').select('email, name').eq('id', body.userId).single()
+
     await adminClient.from('profiles').delete().eq('id', body.userId)
     const { error } = await adminClient.auth.admin.deleteUser(body.userId)
     if (error) {
       console.error('Users delete error:', error)
       return NextResponse.json({ error: '사용자 삭제에 실패했습니다.' }, { status: 500 })
     }
+
+    await adminClient.from('audit_log').insert({
+      action: 'user_deleted',
+      entity_type: 'user',
+      entity_id: body.userId,
+      actor: auth.data.user.email || 'admin',
+      details: { deleted_email: deletedProfile?.email, deleted_name: deletedProfile?.name },
+    })
+
     return NextResponse.json({ success: true })
   }
 

@@ -52,18 +52,26 @@ export function checkRateLimit(key: string, config: RateLimitConfig): RateLimitR
 
 export const RATE_LIMIT_CONFIGS: Record<string, RateLimitConfig> = {
   '/login': { limit: 10, windowSeconds: 60 },
+  '/api/auth/login': { limit: 5, windowSeconds: 60 },
+  '/api/auth': { limit: 10, windowSeconds: 60 },
   '/api/users': { limit: 20, windowSeconds: 60 },
   '/api/rooms': { limit: 30, windowSeconds: 60 },
   '/api/reservations': { limit: 60, windowSeconds: 60 },
   '/api/webhook': { limit: 120, windowSeconds: 60 },
+  '/api/settings': { limit: 20, windowSeconds: 60 },
+  '/api/ip-restriction': { limit: 20, windowSeconds: 60 },
   '/api': { limit: 60, windowSeconds: 60 },
 }
 
 export function getConfigForPath(pathname: string): RateLimitConfig | null {
   if (pathname.startsWith('/api/webhook')) return RATE_LIMIT_CONFIGS['/api/webhook']
+  if (pathname === '/api/auth/login') return RATE_LIMIT_CONFIGS['/api/auth/login']
+  if (pathname.startsWith('/api/auth')) return RATE_LIMIT_CONFIGS['/api/auth']
   if (pathname.startsWith('/api/reservations')) return RATE_LIMIT_CONFIGS['/api/reservations']
   if (pathname.startsWith('/api/rooms')) return RATE_LIMIT_CONFIGS['/api/rooms']
   if (pathname.startsWith('/api/users')) return RATE_LIMIT_CONFIGS['/api/users']
+  if (pathname.startsWith('/api/settings')) return RATE_LIMIT_CONFIGS['/api/settings']
+  if (pathname.startsWith('/api/ip-restriction')) return RATE_LIMIT_CONFIGS['/api/ip-restriction']
   if (pathname.startsWith('/api/')) return RATE_LIMIT_CONFIGS['/api']
   if (pathname === '/login') return RATE_LIMIT_CONFIGS['/login']
   return null

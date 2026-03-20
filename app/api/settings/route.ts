@@ -3,7 +3,7 @@ import { requireAuth } from '@/lib/api-auth'
 import { encrypt, decrypt, maskApiKey } from '@/lib/encryption'
 
 // 암호화 대상 키 목록
-const ENCRYPTED_KEYS = ['smtp_pass', 'graph_client_secret', 'tuya_client_secret']
+const ENCRYPTED_KEYS = ['smtp_pass', 'graph_client_secret', 'tuya_client_secret', 'webhook_secret']
 
 // GET /api/settings - Get system settings
 export async function GET() {
@@ -51,9 +51,9 @@ export async function PATCH(request: NextRequest) {
     'smtp_host', 'smtp_port', 'smtp_user', 'smtp_pass', 'smtp_from',
     'graph_client_id', 'graph_client_secret', 'graph_tenant_id',
     'tuya_client_id', 'tuya_client_secret', 'tuya_device_ids',
-    'noshow_timeout_minutes', 'noshow_auto_cancel',
+    'noshow_grace_period_minutes', 'noshow_auto_cancel_enabled',
     'ip_restriction_enabled', 'sync_interval_minutes',
-    'notification_enabled', 'notification_email',
+    'notification_enabled', 'notification_email', 'webhook_secret',
   ]
 
   // body should be { key: value, key2: value2, ... }
