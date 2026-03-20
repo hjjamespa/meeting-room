@@ -1,0 +1,16 @@
+{
+  "crons": [
+    {
+      "path": "/api/cron/sync-bookings",
+      "schedule": "*/5 * * * *"
+    },
+    {
+      "path": "/api/cron/check-noshows",
+      "schedule": "*/5 * * * *"
+    },
+    {
+      "path": "/api/cron/daily-analytics",
+      "schedule": "0 16 * * *"
+    }
+  ]
+}
