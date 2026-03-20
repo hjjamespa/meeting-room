@@ -76,8 +76,8 @@ export default function SettingsPage() {
         setTuyaClientSecret(get('tuya_client_secret'))
         setGracePeriod(get('noshow_grace_period_minutes') || '10')
         setAutoCancelEnabled(get('noshow_auto_cancel_enabled') !== 'false')
-        setSmtpEmail(get('smtp_email'))
-        setSmtpPassword(get('smtp_password'))
+        setSmtpEmail(get('smtp_user'))
+        setSmtpPassword(get('smtp_pass'))
         setWebhookSecret(get('webhook_secret'))
       }
     } catch (err) {
@@ -94,7 +94,7 @@ export default function SettingsPage() {
     await fetch('/api/settings', {
       method: 'PATCH',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ key, value }),
+      body: JSON.stringify({ [key]: value }),
     })
   }
 
@@ -139,8 +139,8 @@ export default function SettingsPage() {
     setEmailSaving(true)
     setEmailSaved(false)
     try {
-      await saveSetting('smtp_email', smtpEmail)
-      await saveSetting('smtp_password', smtpPassword)
+      await saveSetting('smtp_user', smtpEmail)
+      await saveSetting('smtp_pass', smtpPassword)
       setEmailSaved(true)
       setTimeout(() => setEmailSaved(false), 3000)
     } catch (err) { console.error(err) }

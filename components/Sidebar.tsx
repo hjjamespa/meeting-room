@@ -13,6 +13,7 @@ import {
   UserX,
   BarChart3,
   Settings,
+  Users,
   ShieldAlert,
   LogOut,
   Menu,
@@ -31,6 +32,7 @@ const menuItems = [
 ]
 
 const adminOnlyItems = [
+  { href: '/users', label: '사용자 관리', icon: Users },
   { href: '/security-logs', label: '보안 로그', icon: ShieldAlert },
 ]
 

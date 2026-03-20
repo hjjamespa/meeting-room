@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { requireAuth } from '@/lib/api-auth'
+import { encrypt, decrypt, maskApiKey } from '@/lib/encryption'
+
+// 암호화 대상 키 목록
+const ENCRYPTED_KEYS = ['smtp_pass', 'graph_client_secret', 'tuya_client_secret']
 
 // GET /api/settings - Get system settings
 export async function GET() {
@@ -17,7 +21,21 @@ export async function GET() {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
-  return NextResponse.json(data)
+  // 암호화된 키는 마스킹해서 반환
+  const settings = (data || []).map((s) => {
+    if (ENCRYPTED_KEYS.includes(s.key) && s.value) {
+      try {
+        const decrypted = decrypt(s.value)
+        return { ...s, value: maskApiKey(decrypted), is_set: true }
+      } catch {
+        // 암호화되지 않은 평문이 저장된 경우 (마이그레이션 전)
+        return { ...s, value: maskApiKey(s.value), is_set: true }
+      }
+    }
+    return { ...s, is_set: !!s.value }
+  })
+
+  return NextResponse.json(settings)
 }
 
 // PATCH /api/settings - Update system settings (admin only)
@@ -38,10 +56,13 @@ export async function PATCH(request: NextRequest) {
   const results: Record<string, boolean> = {}
 
   for (const [key, value] of entries) {
+    // 암호화 대상이면 암호화해서 저장
+    const storedValue = ENCRYPTED_KEYS.includes(key) ? encrypt(String(value).trim()) : String(value).trim()
+
     const { error } = await adminClient
       .from('system_settings')
       .upsert(
-        { key, value: String(value), updated_at: new Date().toISOString() },
+        { key, value: storedValue, updated_at: new Date().toISOString() },
         { onConflict: 'key' }
       )
 
