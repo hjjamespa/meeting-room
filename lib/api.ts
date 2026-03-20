@@ -37,7 +37,7 @@ export const auth = {
 export const rooms = {
   getAll: () => get('/api/rooms'),
   create: (data: Record<string, unknown>) => post('/api/rooms', data),
-  update: (id: string, data: Record<string, unknown>) => patch(`/api/rooms?id=${id}`, data),
+  update: (id: string, data: Record<string, unknown>) => patch('/api/rooms', { id, ...data }),
   delete: (id: string) => del(`/api/rooms?id=${id}`),
 }
 
@@ -69,5 +69,5 @@ export const analytics = {
 
 export const settings = {
   getAll: () => get('/api/settings'),
-  update: (key: string, value: string) => patch('/api/settings', { key, value }),
+  update: (key: string, value: string) => patch('/api/settings', { [key]: value }),
 }

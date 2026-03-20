@@ -46,11 +46,22 @@ export async function PATCH(request: NextRequest) {
   const { adminClient } = auth.data
   const body = await request.json()
 
+  // Whitelist of allowed setting keys
+  const ALLOWED_KEYS = [
+    'smtp_host', 'smtp_port', 'smtp_user', 'smtp_pass', 'smtp_from',
+    'graph_client_id', 'graph_client_secret', 'graph_tenant_id',
+    'tuya_client_id', 'tuya_client_secret', 'tuya_device_ids',
+    'noshow_timeout_minutes', 'noshow_auto_cancel',
+    'ip_restriction_enabled', 'sync_interval_minutes',
+    'notification_enabled', 'notification_email',
+  ]
+
   // body should be { key: value, key2: value2, ... }
-  const entries = Object.entries(body) as [string, string][]
+  const allEntries = Object.entries(body) as [string, string][]
+  const entries = allEntries.filter(([key]) => ALLOWED_KEYS.includes(key))
 
   if (entries.length === 0) {
-    return NextResponse.json({ error: 'No settings provided' }, { status: 400 })
+    return NextResponse.json({ error: 'No valid settings provided' }, { status: 400 })
   }
 
   const results: Record<string, boolean> = {}

@@ -4,6 +4,10 @@ import { checkRateLimit, getConfigForPath } from '@/lib/rate-limit'
 import { createClient } from '@supabase/supabase-js'
 
 function applyExtraSecurityHeaders(response: NextResponse) {
+  response.headers.set('X-Frame-Options', 'DENY')
+  response.headers.set('X-Content-Type-Options', 'nosniff')
+  response.headers.set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains')
+  response.headers.set('Referrer-Policy', 'strict-origin-when-cross-origin')
   response.headers.set('X-Permitted-Cross-Domain-Policies', 'none')
   response.headers.set('X-Download-Options', 'noopen')
   response.headers.set('Origin-Agent-Cluster', '?1')

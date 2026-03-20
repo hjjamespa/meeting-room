@@ -47,5 +47,16 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
-  return NextResponse.json({ data, total: count })
+  // Viewer role: mask subject field
+  const isViewer = auth.data.profile.role === 'viewer'
+  const maskedData = isViewer
+    ? (data || []).map((b: Record<string, unknown>) => ({
+        ...b,
+        subject: b.subject
+          ? String(b.subject).substring(0, 2) + '***'
+          : b.subject,
+      }))
+    : data
+
+  return NextResponse.json({ data: maskedData, total: count })
 }

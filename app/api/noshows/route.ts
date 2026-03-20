@@ -47,5 +47,16 @@ export async function GET(request: NextRequest) {
     return NextResponse.json({ error: error.message }, { status: 500 })
   }
 
-  return NextResponse.json({ data, total: count })
+  // Viewer role: mask organizer_email (show only domain part)
+  const isViewer = auth.data.profile.role === 'viewer'
+  const maskedData = isViewer
+    ? (data || []).map((n: Record<string, unknown>) => ({
+        ...n,
+        organizer_email: n.organizer_email
+          ? '***@' + String(n.organizer_email).split('@')[1]
+          : n.organizer_email,
+      }))
+    : data
+
+  return NextResponse.json({ data: maskedData, total: count })
 }

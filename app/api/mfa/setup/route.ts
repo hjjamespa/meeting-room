@@ -4,6 +4,7 @@ import { createAdminClient } from '@/lib/supabase/admin'
 import { generateSecret, generateURI, verify as otplibVerify } from 'otplib'
 import QRCode from 'qrcode'
 import { logSecurityEvent } from '@/lib/security-log'
+import { randomBytes } from 'crypto'
 
 export async function POST() {
   try {
@@ -30,8 +31,7 @@ export async function POST() {
     const backupCodes: string[] = []
     for (let i = 0; i < 8; i++) {
       backupCodes.push(
-        Math.random().toString(36).substring(2, 6).toUpperCase() +
-        Math.random().toString(36).substring(2, 6).toUpperCase()
+        randomBytes(4).toString('hex').toUpperCase()
       )
     }
 

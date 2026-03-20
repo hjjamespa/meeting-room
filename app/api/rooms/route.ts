@@ -93,7 +93,16 @@ export async function PATCH(request: NextRequest) {
     return NextResponse.json({ error: 'Room id is required' }, { status: 400 })
   }
 
-  const { id, ...updates } = body
+  const ALLOWED_FIELDS = ['name', 'floor', 'building', 'capacity', 'outlook_email', 'outlook_calendar_id', 'sensor_device_id', 'sensor_type', 'amenities', 'is_active']
+  const { id, ...rawUpdates } = body
+  const updates: Record<string, unknown> = {}
+  for (const key of ALLOWED_FIELDS) {
+    if (key in rawUpdates) updates[key] = rawUpdates[key]
+  }
+
+  if (Object.keys(updates).length === 0) {
+    return NextResponse.json({ error: 'No valid fields to update' }, { status: 400 })
+  }
 
   const { data, error } = await adminClient
     .from('rooms')
